@@ -11,7 +11,7 @@
 #include <string>
 #include "../src/CollisionPoly.h"
 #include "SFML/System/Vector2.hpp"
-#include "../src/VectorUtils.h"
+#include "../src/lib/Vec2Util.h"
 #include "../src/ContiguousDataManager.h"
 
 void testFastCollisionPoly();
@@ -61,7 +61,7 @@ void testFastCollisionPoly() {
         for(std::size_t j = 0; j < testPolygons[i].size(); ++j){
             sf::Vector2f srcPolyPoint = testPolygons[i][j];
             sf::Vector2f managedPolyPoint = managedPolyReferences[i].getDatum(j);
-            std::cout << "    Point " << j << ":   src: " << Vec2::toStr(srcPolyPoint) + "   managed: " << Vec2::toStr(managedPolyPoint)<<"\n";
+            std::cout << "    Point " << j << ":   src: " << Vec2::toString(srcPolyPoint) + "   managed: " << Vec2::toString(managedPolyPoint)<<"\n";
             assert(srcPolyPoint == managedPolyPoint);
         }
     }

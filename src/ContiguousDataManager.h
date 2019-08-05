@@ -140,13 +140,4 @@ private:
 
 
 
-//template<typename DATA_T, typename METADATA_T = NoMetaData>
-//class ContiguousDataManagerTestChild: public ContiguousDataManager<DATA_T, METADATA_T> {
-//
-//};
-
-
-
-
-
 #endif //FASTCOLLISION_CONTIGUOUSDATAMANAGER_H

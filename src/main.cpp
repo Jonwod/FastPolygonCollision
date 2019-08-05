@@ -1,7 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include "CollisionPoly.h"
 #include "../tests/TestCollisionPoly.h"
+#include "../tests/SpeedTest.h"
 #include "ContiguousDataManager.h"
+#include <iostream>
 
 // To find COM of convex poly:
 // 1) Triangulate by drawing segments from an arbitrary vertex
@@ -19,10 +21,7 @@ sf::Vector2f meanOfVertices(const sf::ConvexShape& shape){
 }
 
 
-int main()
-{
-    testCollisionPoly();
-
+void convexShapeTest() {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!", sf::Style::Default, settings);
@@ -51,6 +50,13 @@ int main()
         window.draw(shape);
         window.display();
     }
+}
+
+
+int main()
+{
+    // testCollisionPoly();
+    polySpeedTest();
 
     return 0;
 }
