@@ -56,14 +56,20 @@ void testFastCollisionPoly() {
         managedPolyReferences.push_back( newPoly );
     }
 
+    auto itrRef = manager.first();
     for(std::size_t i = 0; i < testPolygons.size(); ++i){
         std::cout<<"_____________Polygon "<<i<<"_____________\n";
         for(std::size_t j = 0; j < testPolygons[i].size(); ++j){
             sf::Vector2f srcPolyPoint = testPolygons[i][j];
             sf::Vector2f managedPolyPoint = managedPolyReferences[i].getDatum(j);
-            std::cout << "    Point " << j << ":   src: " << Vec2::toString(srcPolyPoint) + "   managed: " << Vec2::toString(managedPolyPoint)<<"\n";
+            sf::Vector2f itrPoint = itrRef.getDatum(j);
+            std::cout << "    Point " << j << ":   src: " << Vec2::toString(srcPolyPoint) + "   managed: " << Vec2::toString(managedPolyPoint)
+            <<" Managed by itr: "<<Vec2::toString(itrPoint)<<"\n";
             assert(srcPolyPoint == managedPolyPoint);
+            assert(srcPolyPoint == itrPoint);
         }
+
+        itrRef = manager.next(itrRef);
     }
 
     auto failedPoly = manager.add( CollisionData(), {{1.f, 2.f}, {10.f, 5432.f}, {2.f, 4.f}});
