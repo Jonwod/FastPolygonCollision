@@ -3,11 +3,16 @@
 //
 
 #include "SpeedTest.h"
+#include <chrono>
+#include <iostream>
+#include "../src/lib/RandomPolygon.h"
 
 const sf::FloatRect spawnArea{0.f, 0.f, 800.f, 800.f};
 
 const float maxPolyRadius = 20.f;
 const float minPolyRadius = 1.f;
+const unsigned int minSides = 3;
+const unsigned int maxSides = 10;
 
 
 std::vector<sf::Vector2f> randTri() {
@@ -21,9 +26,6 @@ std::vector<sf::Vector2f> randTri() {
 
 
 std::vector<std::vector<sf::Vector2f>> generateTestPolys(int num) {
-    const unsigned int minSides = 3;
-    const unsigned int maxSides = 10;
-
     std::vector<std::vector<sf::Vector2f>> testPolys;
     // Just use triangles for now
     for(int i = 0; i < num; ++i) {
@@ -37,61 +39,60 @@ std::vector<std::vector<sf::Vector2f>> generateTestPolys(int num) {
 }
 
 
-std::vector<PolyEntity> generateRandomTestEntities(SlowCollisionPolyManager<sf::Vector2f> & collisionPolyManager, int num) {
+std::vector<PolyEntity_Slow> generateRandomTestEntities(SlowCollisionPolyManager<sf::Vector2f> & collisionPolyManager, int num) {
     std::vector<std::vector<sf::Vector2f>> polys = generateTestPolys(num);
-    std::vector<PolyEntity> entities;
+    std::vector<PolyEntity_Slow> entities;
     for(const auto& poly: polys){
-        entities.push_back(PolyEntity(poly, collisionPolyManager));
+        entities.push_back(PolyEntity_Slow(poly, collisionPolyManager));
     }
     return entities;
 }
 
 
-std::vector<PolyEntity> generateSpecificTestEntities(SlowCollisionPolyManager<sf::Vector2f> & collisionPolyManager) {
+std::vector<PolyEntity_Slow> generateSpecificTestEntities(SlowCollisionPolyManager<sf::Vector2f> & collisionPolyManager) {
     std::vector<std::vector<sf::Vector2f>> polys;
     polys.push_back({ {0, 0}, {200, 0}, {100, 100} });
     polys.push_back({ {100, 50}, {100, 300}, {300, 300} });
     polys.push_back({ {500, 200}, {500, 400}, {600, 600} });
 
-    std::vector<PolyEntity> entities;
+    std::vector<PolyEntity_Slow> entities;
     for(const auto& poly: polys){
-        entities.push_back(PolyEntity(poly, collisionPolyManager));
+        entities.push_back(PolyEntity_Slow(poly, collisionPolyManager));
     }
     return entities;
 }
 
 
-void polySpeedTest() {
-    const unsigned int numPolys = 200;
-    SlowCollisionPolyManager<sf::Vector2f> slowManager(numPolys);
-    auto entities = generateRandomTestEntities(slowManager, numPolys);
 
-    sf::ContextSettings settings;
-    settings.antialiasingLevel = 8;
-    sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!", sf::Style::Default, settings);
-    window.setFramerateLimit(60);
+using namespace std::chrono;
 
-    while (window.isOpen())
-    {
-        sf::Event event{};
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
 
-        slowManager.runCollisionCheck();
+void contiguousSpeedTest(unsigned int numPolys) {
 
-        for(auto& ent: entities) {
-            ent.update();
-        }
-
-        window.clear();
-
-        for(const auto & ent: entities) {
-            ent.draw(window);
-        }
-
-        window.display();
-    }
 }
+
+
+void uncontiguousSpeedTest(int numPolys) {
+    SlowCollisionPolyManager<sf::Vector2f> slowManager(numPolys);
+    {
+        std::vector<std::vector<sf::Vector2f>> polys = generateTestPolys(numPolys);
+        for(const auto& poly: polys) {
+            slowManager.add(poly);
+        }
+    }
+
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+    slowManager.runCollisionCheck();
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    std::cout << "Uncontiguous polygon collision check for "<< numPolys <<" polygons took " << time_span.count() << " seconds.";
+    std::cout << std::endl;
+}
+
+
+void polySpeedTest() {
+    //uncontiguousSpeedTest(numPolys);
+}
+

@@ -20,7 +20,13 @@ struct CollisionData {
 
 typedef ContiguousDataReference<sf::Vector2f, CollisionData> CollisionPolyReference;
 
-typedef ContiguousDataManager<sf::Vector2f, CollisionData> CollisionPolyManager;
+
+class CollisionPolyManager: public ContiguousDataManager<sf::Vector2f, CollisionData> {
+public:
+    using ContiguousDataManager::ContiguousDataManager;
+    void runCollisionCheck();
+};
+
 
 
 #endif //FASTCOLLISION_COLLISIONPOLY_H

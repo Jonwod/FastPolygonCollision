@@ -9,5 +9,6 @@
 
 void testCollisionPoly();
 
+void fastPolyVisualTest();
 
 #endif //FASTCOLLISION_TESTCOLLISIONPOLY_H

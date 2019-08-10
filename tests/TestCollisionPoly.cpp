@@ -13,6 +13,11 @@
 #include "SFML/System/Vector2.hpp"
 #include "../src/lib/Vec2Util.h"
 #include "../src/ContiguousDataManager.h"
+#include "SFML/Graphics.hpp"
+#include "../src/PolyEntity.h"
+#include "../src/lib/Rand.h"
+#include "../src/lib/RandomPolygon.h"
+
 
 void testFastCollisionPoly();
 
@@ -76,4 +81,85 @@ void testFastCollisionPoly() {
     assert( ( !failedPoly.isValid() ) );
 
     std::cout<<"All CollisionPoly tests passed!"<<std::endl;
+}
+
+
+std::vector<PolyEntity> generateSpecificTestEntities_Fast(CollisionPolyManager & collisionPolyManager) {
+    std::vector<std::vector<sf::Vector2f>> polys;
+    polys.push_back({ {0, 0}, {200, 0}, {100, 100} });
+    polys.push_back({ {100, 50}, {100, 300}, {300, 300} });
+    polys.push_back({ {500, 200}, {500, 400}, {600, 600} });
+
+    std::vector<PolyEntity> entities;
+    for(const auto& poly: polys){
+        entities.push_back(PolyEntity(poly, collisionPolyManager));
+    }
+    return entities;
+}
+
+
+const sf::FloatRect spawnArea{0.f, 0.f, 800.f, 800.f};
+const float maxPolyRadius = 20.f;
+const float minPolyRadius = 1.f;
+const unsigned int minSides = 3;
+const unsigned int maxSides = 10;
+
+
+std::vector<std::vector<sf::Vector2f>> generateRandomTestPolys(unsigned int num) {
+    std::vector<std::vector<sf::Vector2f>> testPolys;
+    // Just use triangles for now
+    for(int i = 0; i < num; ++i) {
+        const unsigned int sides = randInt(minSides, maxSides);
+        const sf::Vector2f origin{randFloat(spawnArea.left, spawnArea.left + spawnArea.width),
+                                  randFloat(spawnArea.top, spawnArea.top + spawnArea.height)};
+        testPolys.push_back(randomConvexPoly( sides, origin, minPolyRadius, maxPolyRadius));
+    }
+
+    return testPolys;
+}
+
+
+std::vector<PolyEntity> makeTestEntities(CollisionPolyManager & collisionPolyManager, const std::vector<std::vector<sf::Vector2f>>& polys) {
+    std::vector<PolyEntity> entities;
+    for(const auto& poly: polys){
+        entities.emplace_back(PolyEntity(poly, collisionPolyManager));
+    }
+    return entities;
+}
+
+
+void fastPolyVisualTest() {
+    const unsigned int numPolys = 10000;
+
+    CollisionPolyManager collisionManager(CollisionPolyReference::requiredBytes(maxSides) * numPolys);
+    auto entities = makeTestEntities(collisionManager, generateRandomTestPolys(numPolys));
+
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!", sf::Style::Default, settings);
+    window.setFramerateLimit(60);
+
+    while (window.isOpen())
+    {
+        sf::Event event{};
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        collisionManager.runCollisionCheck();
+
+        for(auto& ent: entities) {
+            ent.update();
+        }
+
+        window.clear();
+
+        for(const auto & ent: entities) {
+            ent.draw(window);
+        }
+
+        window.display();
+    }
 }

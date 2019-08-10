@@ -56,7 +56,8 @@ void convexShapeTest() {
 int main()
 {
     // testCollisionPoly();
-    polySpeedTest();
+    // polySpeedTest();
+    fastPolyVisualTest();
 
     return 0;
 }
