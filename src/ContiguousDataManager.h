@@ -31,25 +31,25 @@ public:
 
     // Unchecked
     inline const METADATA_T& getMetaData() const {
-        return *getMetaDataPtr();
+        return getHeader()->metadata;
     }
     inline METADATA_T& getMetaData() {
-        return *getMetaDataPtr();
+        return getHeader()->metadata;
     }
 
     // Unchecked
-    const DATA_T& getDatum(unsigned int index) const {
+    inline const DATA_T& getDatum(unsigned int index) const {
         return *(getDataPtr() + index);
     }
 
     // Unchecked
     inline Size_T numDataPoints() const {
-        return *getSizeIntPtr();
+        return getHeader()->sizeInt;
     }
 
     // Calculates how much space would be required for a contiguous data structure
     inline static std::size_t requiredBytes(std::size_t numData) {
-        return sizeof(Size_T) + sizeof(METADATA_T) + sizeof(DATA_T) * numData;
+        return sizeof(Header) + sizeof(DATA_T) * numData;
     }
 
     inline const void * getAddress() const { return _data; }
@@ -59,17 +59,23 @@ public:
     // TODO: Consider making private again:
     // Returns a pointer to the first datum
     inline DATA_T * getDataPtr() {
-        return reinterpret_cast<DATA_T*>(getMetaDataPtr() + 1);
+        return reinterpret_cast<DATA_T*>(getHeader() + 1);
     }
     inline const DATA_T * getDataPtr() const {
-        return reinterpret_cast<const DATA_T*>(getMetaDataPtr() + 1);
+        return reinterpret_cast<const DATA_T*>(getHeader() + 1);
     }
     //
 
 private:
+    struct Header {
+        Size_T sizeInt;
+        METADATA_T metadata;
+    };
+
+
     void set(const METADATA_T& srcMetadata, const std::vector<DATA_T>& srcData) {
-        *getSizeIntPtr() = srcData.size();
-        *getMetaDataPtr() = srcMetadata;
+        getHeader()->sizeInt = srcData.size();
+        getHeader()->metadata = srcMetadata;
 
         DATA_T * datumPtr = getDataPtr();
         for(const DATA_T& srcDatum: srcData) {
@@ -79,18 +85,20 @@ private:
     }
 
     inline Size_T * getSizeIntPtr() {
-        return reinterpret_cast<Size_T*>(_data);
+        return &getHeader()->sizeInt;
     }
     inline const Size_T * getSizeIntPtr() const {
-        return reinterpret_cast<const Size_T*>(_data);
+        return &getHeader()->sizeInt;
     }
 
-    inline METADATA_T * getMetaDataPtr() {
-        return reinterpret_cast<METADATA_T*>(getSizeIntPtr() + 1);
+
+    inline Header * getHeader() {
+        return reinterpret_cast<Header*>(_data);
     }
-    inline const METADATA_T * getMetaDataPtr() const {
-        return reinterpret_cast<const METADATA_T*>(getSizeIntPtr() + 1);
+    inline const Header * getHeader() const {
+        return reinterpret_cast<Header*>(_data);
     }
+
 
     void * _data = nullptr;
 };
@@ -108,6 +116,7 @@ template<typename DATA_T, typename METADATA_T>
 class ContiguousDataManager {
 public:
     explicit ContiguousDataManager(std::size_t bytesAllotment)
+
     {
         _data = reinterpret_cast<char*>(malloc(bytesAllotment));
         if(_data){
