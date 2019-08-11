@@ -31,10 +31,10 @@ public:
 
     // Unchecked
     inline const METADATA_T& getMetaData() const {
-        return getHeader()->metadata;
+        return getHeader().metadata;
     }
     inline METADATA_T& getMetaData() {
-        return getHeader()->metadata;
+        return getHeader().metadata;
     }
 
     // Unchecked
@@ -44,7 +44,7 @@ public:
 
     // Unchecked
     inline Size_T numDataPoints() const {
-        return getHeader()->sizeInt;
+        return getHeader().sizeInt;
     }
 
     // Calculates how much space would be required for a contiguous data structure
@@ -59,10 +59,10 @@ public:
     // TODO: Consider making private again:
     // Returns a pointer to the first datum
     inline DATA_T * getDataPtr() {
-        return reinterpret_cast<DATA_T*>(getHeader() + 1);
+        return reinterpret_cast<DATA_T*>(&getHeader() + 1);
     }
     inline const DATA_T * getDataPtr() const {
-        return reinterpret_cast<const DATA_T*>(getHeader() + 1);
+        return reinterpret_cast<const DATA_T*>(&getHeader() + 1);
     }
     //
 
@@ -74,8 +74,8 @@ private:
 
 
     void set(const METADATA_T& srcMetadata, const std::vector<DATA_T>& srcData) {
-        getHeader()->sizeInt = srcData.size();
-        getHeader()->metadata = srcMetadata;
+        getHeader().sizeInt = srcData.size();
+        getHeader().metadata = srcMetadata;
 
         DATA_T * datumPtr = getDataPtr();
         for(const DATA_T& srcDatum: srcData) {
@@ -84,19 +84,12 @@ private:
         }
     }
 
-    inline Size_T * getSizeIntPtr() {
-        return &getHeader()->sizeInt;
-    }
-    inline const Size_T * getSizeIntPtr() const {
-        return &getHeader()->sizeInt;
-    }
 
-
-    inline Header * getHeader() {
-        return reinterpret_cast<Header*>(_data);
+    inline Header & getHeader() {
+        return *reinterpret_cast<Header*>(_data);
     }
-    inline const Header * getHeader() const {
-        return reinterpret_cast<Header*>(_data);
+    inline const Header & getHeader() const {
+        return *reinterpret_cast<Header*>(_data);
     }
 
 
@@ -148,7 +141,7 @@ public:
     // Get a reference to the next contiguous data object after the specified one. Cannot check the validity of the input
     // reference. Will return an invalid reference if the input reference is the last object.
     inline ContiguousDataReference<DATA_T, METADATA_T> next(const ContiguousDataReference<DATA_T, METADATA_T>& reference) const {
-        const auto currentObjBytes = ContiguousDataReference<DATA_T, METADATA_T>::requiredBytes(reference.numDataPoints());\
+        const auto currentObjBytes = ContiguousDataReference<DATA_T, METADATA_T>::requiredBytes(reference.numDataPoints());
         // The const cast is used here as we want to get a mutable reference to the next object but communicate the fact that the input
         // reference isn't modified but making it const. I consider the const cast justifiable here as we are not actually casting away the constness
         // on the input reference but rather the next object.
