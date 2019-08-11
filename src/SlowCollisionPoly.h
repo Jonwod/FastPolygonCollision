@@ -6,6 +6,7 @@
 #define FASTCOLLISION_SLOWCOLLISIONPOLY_H
 
 #include <vector>
+#include <iostream>
 #include "Collision.h"
 
 
@@ -18,7 +19,7 @@ public:
         _vertices = verts;
     }
 
-    bool isColliding() {
+    bool isColliding() const {
         return _isColliding;
     }
 
@@ -66,6 +67,10 @@ public:
     }
 
     SlowCollisionPolyManager() = delete;
+
+    const std::vector<SlowCollisionPoly<VERT_T>> & getPolys() const {
+         return _polys;
+    }
 private:
     std::vector<SlowCollisionPoly<VERT_T>> _polys;
     const unsigned int _capacity;

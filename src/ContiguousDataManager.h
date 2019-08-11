@@ -25,15 +25,15 @@ public:
 
     // Will check that the referenced data is not nullptr.
     // Cannot verify that the data is actually valid if it isn't null.
-    bool isValid() const {
+    inline bool isValid() const {
         return _data != nullptr;
     }
 
     // Unchecked
-    const METADATA_T& getMetaData() const {
+    inline const METADATA_T& getMetaData() const {
         return *getMetaDataPtr();
     }
-    METADATA_T& getMetaData() {
+    inline METADATA_T& getMetaData() {
         return *getMetaDataPtr();
     }
 
@@ -48,12 +48,24 @@ public:
     }
 
     // Calculates how much space would be required for a contiguous data structure
-    static std::size_t requiredBytes(std::size_t numData) {
+    inline static std::size_t requiredBytes(std::size_t numData) {
         return sizeof(Size_T) + sizeof(METADATA_T) + sizeof(DATA_T) * numData;
     }
 
-    const void * getAddress() const { return _data; }
-    void * getAddress() { return _data; }
+    inline const void * getAddress() const { return _data; }
+    inline void * getAddress() { return _data; }
+
+
+    // TODO: Consider making private again:
+    // Returns a pointer to the first datum
+    inline DATA_T * getDataPtr() {
+        return reinterpret_cast<DATA_T*>(getMetaDataPtr() + 1);
+    }
+    inline const DATA_T * getDataPtr() const {
+        return reinterpret_cast<const DATA_T*>(getMetaDataPtr() + 1);
+    }
+    //
+
 private:
     void set(const METADATA_T& srcMetadata, const std::vector<DATA_T>& srcData) {
         *getSizeIntPtr() = srcData.size();
@@ -66,26 +78,18 @@ private:
         }
     }
 
-    Size_T * getSizeIntPtr() {
+    inline Size_T * getSizeIntPtr() {
         return reinterpret_cast<Size_T*>(_data);
     }
-    const Size_T * getSizeIntPtr() const {
+    inline const Size_T * getSizeIntPtr() const {
         return reinterpret_cast<const Size_T*>(_data);
     }
 
-    METADATA_T * getMetaDataPtr() {
+    inline METADATA_T * getMetaDataPtr() {
         return reinterpret_cast<METADATA_T*>(getSizeIntPtr() + 1);
     }
-    const METADATA_T * getMetaDataPtr() const {
+    inline const METADATA_T * getMetaDataPtr() const {
         return reinterpret_cast<const METADATA_T*>(getSizeIntPtr() + 1);
-    }
-
-    // Returns a pointer to the first datum
-    DATA_T * getDataPtr() {
-        return reinterpret_cast<DATA_T*>(getMetaDataPtr() + 1);
-    }
-    const DATA_T * getDataPtr() const {
-        return reinterpret_cast<const DATA_T*>(getMetaDataPtr() + 1);
     }
 
     void * _data = nullptr;
@@ -134,7 +138,7 @@ public:
 
     // Get a reference to the next contiguous data object after the specified one. Cannot check the validity of the input
     // reference. Will return an invalid reference if the input reference is the last object.
-    ContiguousDataReference<DATA_T, METADATA_T> next(const ContiguousDataReference<DATA_T, METADATA_T>& reference) const {
+    inline ContiguousDataReference<DATA_T, METADATA_T> next(const ContiguousDataReference<DATA_T, METADATA_T>& reference) const {
         const auto currentObjBytes = ContiguousDataReference<DATA_T, METADATA_T>::requiredBytes(reference.numDataPoints());\
         // The const cast is used here as we want to get a mutable reference to the next object but communicate the fact that the input
         // reference isn't modified but making it const. I consider the const cast justifiable here as we are not actually casting away the constness
@@ -143,7 +147,7 @@ public:
         return nextObject < _dataEnd ? ContiguousDataReference<DATA_T, METADATA_T>(nextObject) : ContiguousDataReference<DATA_T, METADATA_T>(nullptr);
     }
 
-    ContiguousDataReference<DATA_T, METADATA_T> first() {
+    inline ContiguousDataReference<DATA_T, METADATA_T> first() {
         return _data < _dataEnd ? ContiguousDataReference<DATA_T, METADATA_T>(_data) : ContiguousDataReference<DATA_T, METADATA_T>(nullptr);
     }
 private:

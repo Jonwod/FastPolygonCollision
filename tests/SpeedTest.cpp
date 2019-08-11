@@ -67,18 +67,38 @@ std::vector<PolyEntity_Slow> generateSpecificTestEntities(SlowCollisionPolyManag
 using namespace std::chrono;
 
 
-void contiguousSpeedTest(unsigned int numPolys) {
+int contiguousSpeedTest(const std::vector<std::vector<sf::Vector2f>> & polys) {
+    CollisionPolyManager manager(CollisionPolyReference::requiredBytes(maxSides) * polys.size());
+    for(const auto & poly: polys) {
+       if(!manager.add(CollisionData{}, poly).isValid()) {
+           std::cout<<"Error. Failed to add poly to contiguous manager"<< std::endl;
+       } // Just making sure the add worked
+    }
 
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+    manager.runCollisionCheck();
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    std::cout << "Contiguous polygon collision check for "<< polys.size() <<" polygons took " << time_span.count() << " seconds.";
+    std::cout << std::endl;
+
+    int count = 0;
+    for(auto poly = manager.first(); poly.isValid(); poly = manager.next(poly)) {
+        count += poly.getMetaData().isColliding ? 1 : 0;
+    }
+    return count;
 }
 
 
-void uncontiguousSpeedTest(int numPolys) {
-    SlowCollisionPolyManager<sf::Vector2f> slowManager(numPolys);
-    {
-        std::vector<std::vector<sf::Vector2f>> polys = generateTestPolys(numPolys);
-        for(const auto& poly: polys) {
-            slowManager.add(poly);
-        }
+int noncontiguousSpeedTest(const std::vector<std::vector<sf::Vector2f>>& polys) {
+
+    SlowCollisionPolyManager<sf::Vector2f> slowManager(polys.size());
+    for(const auto& poly: polys) {
+        if(!slowManager.add(poly)) {
+            std::cout<<"Error. Failed to add poly to slow manager"<< std::endl;
+        } // Just making sure the add worked
     }
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
@@ -87,12 +107,23 @@ void uncontiguousSpeedTest(int numPolys) {
 
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-    std::cout << "Uncontiguous polygon collision check for "<< numPolys <<" polygons took " << time_span.count() << " seconds.";
+    std::cout << "Noncontiguous polygon collision check for "<< polys.size() <<" polygons took " << time_span.count() << " seconds.";
     std::cout << std::endl;
+
+    int count = 0;
+    for(const auto & poly: slowManager.getPolys()) {
+        count += poly.isColliding() ? 1 : 0;
+    }
+    return count;
 }
 
 
 void polySpeedTest() {
-    //uncontiguousSpeedTest(numPolys);
+    const unsigned int numPolys = 10000;
+    auto testPolys = generateTestPolys(numPolys);
+
+    const int nCollisions = noncontiguousSpeedTest(testPolys);
+
+    const int cCollisions = contiguousSpeedTest(testPolys);
 }
 

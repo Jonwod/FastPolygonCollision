@@ -27,7 +27,7 @@ namespace Vec2 {
 
 
     template<template<class> class V, class S>
-    S dotProduct(const V<S> & a, const V<S> & b) {
+    inline S dotProduct(const V<S> & a, const V<S> & b) {
         return a.x * b.x + a.y * b.y;
     }
 
