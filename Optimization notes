@@ -1,0 +1,31 @@
+Noncontiguous polygon collision check for 10000 polygons took 1.33001 seconds.
+Contiguous polygon collision check for 10000 polygons took 1.28848 seconds.
+
+
+
+after making areColliding() a template: 
+
+Noncontiguous polygon collision check for 10000 polygons took 1.29042 seconds.
+Contiguous polygon collision check for 10000 polygons took 1.33925 seconds.
+
+after making areColliding() inline:
+Noncontiguous polygon collision check for 10000 polygons took 1.21075 seconds.
+Contiguous polygon collision check for 10000 polygons took 1.26929 seconds.
+
+
+after making all ContiguousDataReference methods inline:
+Noncontiguous polygon collision check for 10000 polygons took 1.22485 seconds.
+Contiguous polygon collision check for 10000 polygons took 1.31262 seconds.
+
+
+
+After making a Header struct for contiguous data reference:
+Noncontiguous polygon collision check for 10000 polygons took 1.19669 seconds.
+Contiguous polygon collision check for 10000 polygons took 1.19449 seconds.
+CONTIGUOUS SYSTEM BECOMES SLIGHTLY BUT ALMOST ALWAYS FASTER THAN NON-CONTIGUOUS!
+
+
+After slight optimization to areColliding (initialized min/max with first vertex rather than to
+positive/negative infinity, thus saving 1 iteration).
+Noncontiguous polygon collision check for 10000 polygons took 1.17721 seconds.
+Contiguous polygon collision check for 10000 polygons took 1.16741 seconds.
