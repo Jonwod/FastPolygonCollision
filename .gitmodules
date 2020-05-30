@@ -1,0 +1,3 @@
+[submodule "src/lib/Vec2Util"]
+	path = src/lib/Vec2Util
+	url = https://github.com/Jonwod/Vec2Util.git
