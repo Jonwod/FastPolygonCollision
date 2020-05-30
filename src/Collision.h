@@ -6,7 +6,7 @@
 #define FASTCOLLISION_COLLISION_H
 
 #include <limits>
-#include "lib/Vec2Util.h"
+#include "lib/Vec2Util/src/Vec2Util.h"
 
 
 template<typename V>

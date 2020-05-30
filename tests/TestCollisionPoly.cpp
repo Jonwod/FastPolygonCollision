@@ -11,7 +11,7 @@
 #include <string>
 #include "../src/CollisionPoly.h"
 #include "SFML/System/Vector2.hpp"
-#include "../src/lib/Vec2Util.h"
+#include "../src/lib/Vec2Util/src/Vec2Util.h"
 #include "../src/ContiguousDataManager.h"
 #include "SFML/Graphics.hpp"
 #include "../src/PolyEntity.h"
