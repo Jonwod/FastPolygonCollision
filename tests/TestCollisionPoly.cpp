@@ -68,7 +68,7 @@ void testFastCollisionPoly() {
             sf::Vector2f srcPolyPoint = testPolygons[i][j];
             sf::Vector2f managedPolyPoint = managedPolyReferences[i].getDatum(j);
             sf::Vector2f itrPoint = itrRef.getDatum(j);
-            std::cout << "    Point " << j << ":   src: " << Vec2::toString(srcPolyPoint) + "   managed: " << Vec2::toString(managedPolyPoint)
+            std::cout << "    Point " << j << ":   src: " << Vec2::toString(srcPolyPoint)  << "   managed: " << Vec2::toString(managedPolyPoint)
             <<" Managed by itr: "<<Vec2::toString(itrPoint)<<"\n";
             assert(srcPolyPoint == managedPolyPoint);
             assert(srcPolyPoint == itrPoint);

@@ -9,7 +9,7 @@ add_executable(FastCollision src/main.cpp
         tests/TestCollisionPoly.cpp
         tests/TestCollisionPoly.h
         src/SlowCollisionPoly.h
-        src/lib/Vec2Util.h tests/SpeedTest.cpp tests/SpeedTest.h src/ContiguousDataManager.h src/lib/Rand.cpp src/lib/Rand.h src/PolyEntity.cpp src/PolyEntity.h src/Collision.h src/lib/JMath.h src/lib/RandomPolygon.h)
+        tests/SpeedTest.cpp tests/SpeedTest.h src/ContiguousDataManager.h src/lib/Rand.cpp src/lib/Rand.h src/PolyEntity.cpp src/PolyEntity.h src/Collision.h src/lib/JMath.h src/lib/RandomPolygon.h)
 
 target_link_libraries(FastCollision sfml-graphics)
 target_link_libraries(FastCollision sfml-window)
